@@ -1,0 +1,51 @@
+html {
+    font-family: sans-serif;
+    font-size: 12pt;
+}
+
+h1 {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    font-size: 12pt;
+}
+
+#questionField {
+    font-size: 20pt;
+}
+
+.card {
+    display: inline-block;
+    width: 100px;
+    height: 160px;
+    border: solid white 3px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.6);
+    margin: 10px;
+    background-color: rgb(2, 0, 92);
+    color: white;
+    box-sizing: border-box;
+    padding: 0;
+    transition: 0.3s;
+}
+
+button.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 7px 15px 0 rgba(0, 0, 0, 0.4);
+}
+
+.card > * {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.card.selected {
+    background-color: blue;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Scrum poker</title>
+</head>
+<body>
+    <div>
+        <a href="/">Выйти</a>
+        <div>
+            <h3>Комната</h3>
+            <div>
+                <span id="room"></span>
+            </div>
+        </div>
+
+        <div>
+            <h3>Задача</h3>
+            <input id="questionField" />
+        </div>
+
+        <div>
+            <h3 id="answers-title">Карты</h3>
+            <div id="answers"></div>
+        </div>
+
+        <div>
+            <h3>Команда</h3>
+            <ol id="usersList"></ol>
+        </div>
+    </div>
+    <script type="module" src="client.js"></script>
+</body>
+</html>

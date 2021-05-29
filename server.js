@@ -5,12 +5,14 @@ import { writable } from './writable.js';
 import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT } from './actions.js';
 
-
-
 http.createServer((req, res) => {
-    let path = '.' + req.url;
+    let path = '.' + req.url.split('?')[0];
     if (path.endsWith('/')) {
         path += 'index.html';
+    }
+
+    if (!fs.existsSync(path)) {
+        path += '.html';
     }
 
     if (fs.existsSync(path)) {
@@ -36,9 +38,14 @@ class User {
     }
 }
 
-const users = writable([]);
+class Room {
+    constructor() {
+        this.users = writable([]);
+        this.question = writable('');
+    }
+}
 
-const question = writable('');
+const rooms = {};
 
 wss.on('connection', ws => {
     const user = new User();
@@ -48,28 +55,40 @@ wss.on('connection', ws => {
         payload: user.id
     }));
 
-    const unsubUsers = users.subscribe(usrs => {
-        ws.send(JSON.stringify({
-            type: USERS,
-            payload: usrs
-        }));
-    });
+    let users;
+    let question;
 
-    const unsubQuestion = question.subscribe(q => {
-        ws.send(JSON.stringify({
-            type: QUESTION,
-            payload: q
-        }));
-    });
+    let unsubUsers = () => { };
 
-    users.set(usrs => {
-        usrs.push(user);
-        return [...usrs];
-    });
+    let unsubQuestion = () => { };
 
     ws.on('message', messageStr => {
         const action = JSON.parse(messageStr);
         switch (action.type) {
+            case CONNECT:
+                const roomId = action.payload;
+                if (!rooms[roomId]) {
+                    rooms[roomId] = new Room();
+                }
+                users = rooms[roomId].users;
+                question = rooms[roomId].question;
+                unsubUsers = users.subscribe(usrs => {
+                    ws.send(JSON.stringify({
+                        type: USERS,
+                        payload: usrs
+                    }));
+                });
+                unsubQuestion = question.subscribe(q => {
+                    ws.send(JSON.stringify({
+                        type: QUESTION,
+                        payload: q
+                    }));
+                });
+                users.set(usrs => {
+                    usrs.push(user);
+                    return [...usrs];
+                });
+                break;
             case NAME:
                 users.set(usrs => {
                     user.name = action.payload;
@@ -93,7 +112,7 @@ wss.on('connection', ws => {
     });
 
     ws.on('close', () => {
-        users.set(usrs => usrs.filter(u => u !== user));
+        users && users.set(usrs => usrs.filter(u => u !== user));
         unsubUsers();
         unsubQuestion();
     });
