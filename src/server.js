@@ -6,7 +6,7 @@ import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT } from './actions.js';
 
 http.createServer((req, res) => {
-    let path = '.' + req.url.split('?')[0];
+    let path = './src' + req.url.split('?')[0];
     if (path.endsWith('/')) {
         path += 'index.html';
     }
