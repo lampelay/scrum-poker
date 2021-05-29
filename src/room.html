@@ -8,35 +8,40 @@
     <title>Scrum poker</title>
 </head>
 <body>
-    <div>
-        <a href="/">Выйти</a>
-        <div>
-            <h3>Комната</h3>
+    <main>
+        <h1>Scrum poker</h1>
+        <fieldset>
+            <legend>
+                <span>Комната</span>
+                |
+                <a href="/">Выйти</a>
+            </legend>
             <div>
                 <span id="room"></span>
+                
             </div>
-        </div>
+        </fieldset>
 
-        <div>
-            <h3>Задача</h3>
+        <fieldset>
+            <legend>Вопрос</legend>
             <input id="questionField" />
-        </div>
+        </fieldset>
 
-        <div>
-            <h3 id="answers-title">Карты</h3>
+        <fieldset>
+            <legend id="answers-title">Карты</legend>
             <div id="answers"></div>
-        </div>
+        </fieldset>
 
-        <div>
-            <h3>Команда</h3>
+        <fieldset>
+            <legend>Команда</legend>
             <ol id="usersList"></ol>
-        </div>
+        </fieldset>
 
-        <div>
-            <h3>Варианты ответов (через ';')</h3>
+        <fieldset>
+            <legend>Доступные карты</legend>
             <input id="variants" />
-        </div>
-    </div>
+        </fieldset>
+    </main>
     <script type="module" src="client.js"></script>
 </body>
 </html>

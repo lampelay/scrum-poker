@@ -7,9 +7,20 @@ h1 {
     text-align: center;
 }
 
+main {
+    margin: 0 auto;
+    max-width: 900px;
+}
+
 input {
-    width: 98%;
+    width: 99%;
     font-size: 12pt;
+}
+
+fieldset {
+    border-radius: 5px;
+    border: solid 1px gray;
+    margin-top: 10px;
 }
 
 #questionField {
