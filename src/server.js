@@ -3,7 +3,8 @@ import fs from 'fs';
 import ws from 'ws';
 import { writable } from './writable.js';
 import mimeTypes from './mime-types.js';
-import { USERS, QUESTION, ANSWER, NAME, CONNECT } from './actions.js';
+import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
+import { DEFAULT_VARIANTS } from './variants.js';
 
 http.createServer((req, res) => {
     let path = './src' + req.url.split('?')[0];
@@ -42,6 +43,7 @@ class Room {
     constructor() {
         this.users = writable([]);
         this.question = writable('');
+        this.variants = writable(DEFAULT_VARIANTS);
     }
 }
 
@@ -57,10 +59,11 @@ wss.on('connection', ws => {
 
     let users;
     let question;
+    let variants;
 
     let unsubUsers = () => { };
-
     let unsubQuestion = () => { };
+    let unsubVariants = () => { };
 
     ws.on('message', messageStr => {
         const action = JSON.parse(messageStr);
@@ -72,6 +75,7 @@ wss.on('connection', ws => {
                 }
                 users = rooms[roomId].users;
                 question = rooms[roomId].question;
+                variants = rooms[roomId].variants;
                 unsubUsers = users.subscribe(usrs => {
                     ws.send(JSON.stringify({
                         type: USERS,
@@ -82,6 +86,12 @@ wss.on('connection', ws => {
                     ws.send(JSON.stringify({
                         type: QUESTION,
                         payload: q
+                    }));
+                });
+                unsubVariants = variants.subscribe(v => {
+                    ws.send(JSON.stringify({
+                        type: VARIANTS,
+                        payload: v
                     }));
                 });
                 users.set(usrs => {
@@ -108,6 +118,17 @@ wss.on('connection', ws => {
                     return [...usrs];
                 });
                 break;
+            case VARIANTS:
+                variants.set(action.payload);
+                users.set(usrs => {
+                    usrs.forEach(u => {
+                        if (!action.payload.includes(u.answer)) {
+                            u.answer = '';
+                        }
+                    });
+                    return [...usrs];
+                });
+                break;
         }
     });
 
@@ -115,5 +136,6 @@ wss.on('connection', ws => {
         users && users.set(usrs => usrs.filter(u => u !== user));
         unsubUsers();
         unsubQuestion();
+        unsubVariants();
     });
 });

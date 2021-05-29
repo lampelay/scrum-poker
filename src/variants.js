@@ -1,0 +1,1 @@
+export const DEFAULT_VARIANTS = ['3', '5', '13', '?'];

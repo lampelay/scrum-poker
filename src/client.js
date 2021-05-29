@@ -1,7 +1,8 @@
 import { writable } from './writable.js';
-import { USERS, QUESTION, ANSWER, NAME, CONNECT } from './actions.js';
+import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
+import { DEFAULT_VARIANTS } from './variants.js';
 
-const answerVariants = ['3', '5', '13', '?'];
+let answerVariants = DEFAULT_VARIANTS;
 
 const usersStore = writable([]);
 const questionStore = writable('');
@@ -43,8 +44,31 @@ s.onmessage = e => {
         case QUESTION:
             questionStore.set(action.payload);
             break;
+        case VARIANTS:
+            answerVariants = action.payload;
+            variantsField.value = answerVariants.join('; ');
+            usersStore.set(users => [...users]);
+            break;
     }
-}
+};
+
+const variantsField = document.getElementById('variants');
+variantsField.value = answerVariants.join('; ')
+variantsField.addEventListener('change', e => {
+    answerVariants = variantsField
+        .value
+        .split(';')
+        .map(v => v.trim())
+        .filter(Boolean);
+    if (answerVariants.length === 0) {
+        answerVariants = DEFAULT_VARIANTS;
+    }
+    s.send(JSON.stringify({
+        type: VARIANTS,
+        payload: answerVariants
+    }));
+    variantsField.blur();
+});
 
 const questionField = document.getElementById('questionField');
 
@@ -123,7 +147,9 @@ usersStore.subscribe(users => {
             answersTitle.textContent = 'Выбери карту';
             answers.innerHTML = '';
         }
+        const buttonsToDelete = new Set(Object.keys(buttonNodes));
         for (const answer of answerVariants) {
+            buttonsToDelete.delete(answer);
             let button = buttonNodes[answer];
             if (!button) {
                 button = document.createElement('button');
@@ -148,6 +174,10 @@ usersStore.subscribe(users => {
                 button.disabled = false;
             }
         }
+        buttonsToDelete.forEach(v => {
+            buttonNodes[v].remove()
+            delete buttonNodes[v];
+        });
     } else {
         if (Object.keys(buttonNodes).length) {
             for (const answer in buttonNodes) {
