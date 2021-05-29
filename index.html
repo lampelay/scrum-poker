@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum poker</title>
+    <style>
+        html {
+            font-family: sans-serif;
+            font-size: 12pt;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            font-size: 12pt;
+        }
+
+        #questionField {
+            font-size: 20pt;
+        }
+
+        .card {
+            display: inline-block;
+            width: 100px;
+            height: 160px;
+            border: solid white 3px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.6);
+            margin: 10px;
+            background-color: rgb(2, 0, 92);
+            color: white;
+            box-sizing: border-box;
+            padding: 0;
+            transition: 0.3s;
+        }
+
+        button.card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 7px 15px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .card > * {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .card.selected {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Scrum poker</h1>
+        <fieldset>
+            <legend>Задача</legend>
+            <input id="questionField" />
+        </fieldset>
+
+        <fieldset>
+            <legend id="answers-title">Карты</legend>
+            <div id="answers"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Команда</legend>
+            <ol id="usersList"></ol>
+        </fieldset>
+    </div>
+    <script type="module">
+        import { writable } from './writable.js';
+        import { USERS, QUESTION, ANSWER, NAME, CONNECT } from './actions.js';
+
+        const answerVariants = ['3', '5', '13', '?'];
+
+        const usersStore = writable([]);
+        const questionStore = writable('');
+        let userId = '';
+
+        const s = new WebSocket('ws://185.155.19.84:5003');
+
+        s.onopen = () => {
+            const name = localStorage.getItem('userName');
+            if (name) {
+                s.send(JSON.stringify({
+                    type: NAME,
+                    payload: name
+                }));
+            }
+        }
+        
+        s.onmessage = e => {
+            const action = JSON.parse(e.data);
+            switch (action.type) {
+                case CONNECT:
+                    userId = action.payload;
+                    break;
+                case USERS:
+                    usersStore.set(action.payload);
+                    break;
+                case QUESTION:
+                    questionStore.set(action.payload);
+                    break;
+            }
+        }
+
+        const questionField = document.getElementById('questionField');
+
+        questionField.addEventListener('change', e => {
+            s.send(JSON.stringify({
+                type: QUESTION,
+                payload: questionField.value
+            }));
+            questionField.blur();
+        });
+
+        questionStore.subscribe(q => questionField.value = q);
+
+        const usersList = document.getElementById('usersList');
+        const userNodes = {};
+        usersStore.subscribe(users => {
+            const nodesToDelete = new Set(Object.keys(userNodes));
+            for (const user of users) {
+                nodesToDelete.delete(user.id);
+                let userNode = userNodes[user.id];
+                if (!userNode) {
+                    userNode = document.createElement('li');
+                    userNodes[user.id] = userNode;
+                    usersList.appendChild(userNode);
+                }
+                if (user.id !== userId) {
+                    let nameNode = userNode.querySelector('span');
+                    if (!nameNode) {
+                        nameNode = document.createElement('span');
+                        userNode.append(nameNode);
+                    }
+                    let answerNode = userNode.querySelector('i');
+                    if (!answerNode) {
+                        answerNode = document.createElement('i');
+                        userNode.append(' ', answerNode);
+                    }
+                    if (nameNode.textContent !== user.name) {
+                        nameNode.textContent = user.name;
+                    }
+                    if (!!answerNode.textContent !== !!user.answer) {
+                        answerNode.textContent = user.answer ? 'Есть ответ' : '';
+                    }
+                } else {
+                    let input = userNode.querySelector('input');
+                    if (!input) {
+                        input = document.createElement('input');
+                        userNode.appendChild(input);
+                        input.addEventListener('change', e => {
+                            const name = input.value;
+                            localStorage.setItem('userName', name);
+                            s.send(JSON.stringify({
+                                type: NAME,
+                                payload: name
+                            }));
+                            input.blur();
+                        });
+                    }
+                    if (input.value !== user.name) {
+                        input.value = user.name;
+                    }
+                }
+            }
+            nodesToDelete.forEach(n => {
+                userNodes[n].remove();
+                delete userNodes[n];
+            });    
+        });
+
+        const answers = document.getElementById('answers');
+        const answersTitle =  document.getElementById('answers-title');
+        const buttonNodes = {};
+        usersStore.subscribe(users => {
+            const user = users.find(u => u.id === userId);
+            if (users.some(u => !u.answer)) {
+                if (!Object.keys(buttonNodes).length) {
+                    answersTitle.textContent = 'Выбери карту';
+                    answers.innerHTML = '';
+                }
+                for (const answer of answerVariants) {
+                    let button = buttonNodes[answer];
+                    if (!button) {
+                        button = document.createElement('button');
+                        buttonNodes[answer] = button;
+                        button.className = 'card';
+                        const div = document.createElement('div');
+                        div.innerHTML = answer;
+                        button.append(div);
+                        button.addEventListener('click', e => {
+                            s.send(JSON.stringify({
+                                type: ANSWER,
+                                payload: answer
+                            }));
+                        });
+                        answers.append(button);
+                    }
+                    if (user?.answer === answer) {
+                        button.classList.add('selected');
+                        button.disabled = true;
+                    } else {
+                        button.classList.remove('selected');
+                        button.disabled = false;
+                    }
+                }
+            } else {
+                if (Object.keys(buttonNodes).length) {
+                    for (const answer in buttonNodes) {
+                        buttonNodes[answer].remove();
+                        delete buttonNodes[answer];
+                    }
+                    answersTitle.textContent = 'Результат';
+                    answers.innerHTML = users
+                        .map(u => `
+                            <div class="card selected">
+                                <div>${u.answer}</div>
+                            </div>
+                        `)
+                        .join('');
+                }
+            }
+        })
+    </script>
+</body>
+</html>
