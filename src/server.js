@@ -1,10 +1,9 @@
 import http from 'http';
 import fs from 'fs';
 import ws from 'ws';
-import { writable } from './writable.js';
 import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
-import { DEFAULT_VARIANTS } from './variants.js';
+import { User, Room } from './model.js';
 
 http.createServer((req, res) => {
     let path = './src' + req.url.split('?')[0];
@@ -30,22 +29,6 @@ http.createServer((req, res) => {
 }).listen(5002);
 
 const wss = new ws.Server({ port: 5003 });
-
-class User {
-    constructor(name, answer = '') {
-        this.id = (Math.random() * 1000000 | 0) + '';
-        this.name = name ?? 'User ' + this.id;
-        this.answer = answer;
-    }
-}
-
-class Room {
-    constructor() {
-        this.users = writable([]);
-        this.question = writable('');
-        this.variants = writable(DEFAULT_VARIANTS);
-    }
-}
 
 const rooms = {};
 

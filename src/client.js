@@ -1,9 +1,11 @@
 import { writable } from './writable.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
 import { DEFAULT_VARIANTS } from './variants.js';
+import { User } from './model.js';
 
 let answerVariants = DEFAULT_VARIANTS;
 
+/** @type {import('./writable.js').Writable<User[]>} */
 const usersStore = writable([]);
 const questionStore = writable('');
 let userId = '';
@@ -126,7 +128,7 @@ usersStore.subscribe(users => {
                     }));
                     input.blur();
                 });
-                input.value = user.name;
+                input.value = localStorage.getItem('userName') || user.name;
             }
         }
     }
