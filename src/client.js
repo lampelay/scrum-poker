@@ -1,7 +1,8 @@
 import { writable } from './writable.js';
-import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
+import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './actions.js';
 import { DEFAULT_VARIANTS } from './variants.js';
 import { User } from './model.js';
+import { askToKick } from './ask-to-kick.js';
 
 const getUserNameFromLocalStorage = () => {
     try {
@@ -124,6 +125,21 @@ usersStore.subscribe(users => {
             if (!answerNode) {
                 answerNode = document.createElement('i');
                 userNode.append(' ', answerNode);
+            }
+            let kickButton = userNode.querySelector('button');
+            if (!kickButton) {
+                kickButton = document.createElement('button');
+                kickButton.textContent = 'Выгнать';
+                kickButton.addEventListener('click', () => {
+                    askToKick(user.name)
+                        .then(() => {
+                            s.send(JSON.stringify({
+                                type: KICK,
+                                payload: user.id
+                            }));
+                        });
+                });
+                userNode.append(' ', kickButton);
             }
             if (nameNode.textContent !== user.name) {
                 nameNode.textContent = user.name;

@@ -2,7 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import ws from 'ws';
 import mimeTypes from './mime-types.js';
-import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
+import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './actions.js';
 import { User, Room } from './model.js';
 
 const PORT = process.env.PORT || 3000;
@@ -121,6 +121,9 @@ wss.on('connection', ws => {
                     });
                     return [...usrs];
                 });
+                break;
+            case KICK:
+                users.set(usrs => usrs.filter(u => u.id !== action.payload));
                 break;
         }
     });
