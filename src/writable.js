@@ -18,7 +18,7 @@
 
 /**
  * @template T
- * @callback Setter
+ * @callback Updater
  * @param {T} value 
  * @returns {T}
  */
@@ -26,7 +26,7 @@
 /**
  * @template T
  * @callback SetFunc
- * @param {T | Setter<T>} value
+ * @param {T | Updater<T>} value
  */
 
 /**
@@ -42,30 +42,34 @@
  * @returns {Writable<T>}
  */
 export const writable = value => {
+    /** @type {Set<Listener<T>} */
     const subscribers = new Set();
-
-    const subscribe = cb => {
-        subscribers.add(cb);
-        cb(value);
-        return () => subscribers.delete(cb);
-    }
-
     let isUpdate = false;
 
-    const set = v => {
+    /** @type {Subscribe<T>} */
+    const subscribe = cb => {
+        subscribers.add(cb);
+        if (!isUpdate) {
+            isUpdate = true;
+            cb(value);
+            isUpdate = false;
+        }
+        return () => subscribers.delete(cb);
+    };
+
+    /** @type {SetFunc<T>} */
+    const set = newValue => {
         if (isUpdate) return;
         isUpdate = true;
-        if (typeof v === 'function') {
-            v = v(value);
+        if (typeof newValue === 'function') {
+            newValue = newValue(value);
         }
-        if (v === value) {
-            isUpdate = false;
-            return;
+        if (newValue !== value) {
+            value = newValue;
+            subscribers.forEach(cb => cb(value));
         }
-        value = v;
-        subscribers.forEach(cb => cb(value));
         isUpdate = false;
-    }
+    };
 
     return { subscribe, set };
 };
