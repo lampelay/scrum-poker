@@ -126,8 +126,6 @@ usersStore.subscribe(users => {
                     }));
                     input.blur();
                 });
-            }
-            if (input.value !== user.name) {
                 input.value = user.name;
             }
         }
