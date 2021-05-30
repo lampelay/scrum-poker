@@ -5,30 +5,40 @@ import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
 import { User, Room } from './model.js';
 
-http.createServer((req, res) => {
-    let path = './src' + req.url.split('?')[0];
-    if (path.endsWith('/')) {
-        path += 'index.html';
-    }
+const PORT = process.env.PORT || 3000;
 
-    if (!fs.existsSync(path)) {
-        path += '.html';
-    }
-
-    if (fs.existsSync(path)) {
-        const ext = path.split('.').slice(-1)[0].toLowerCase();
-        const mimeType = mimeTypes[ext];
-        if (mimeType) {
-            res.setHeader('Content-Type', mimeType + ';charset=UTF-8');
+const server = http
+    .createServer(async (req, res) => {
+        let path = './src' + req.url.split('?')[0];
+        if (path.endsWith('/')) {
+            path += 'index.html';
         }
-        fs.createReadStream(path).pipe(res);
-    } else {
-        res.statusCode = 404;
-        res.end('Not found');
-    }
-}).listen(5002);
+        const stat = await fs.promises.stat(path).catch(() => null);
+        if (!stat) {
+            path += '.html';
+        } else if (stat.isDirectory()) {
+            path += '/index.html';
+        }
 
-const wss = new ws.Server({ port: 5003 });
+        fs.promises
+            .stat(path)
+            .then(() => {
+                const ext = path.split('.').slice(-1)[0].toLowerCase();
+                const mimeType = mimeTypes[ext];
+                if (mimeType) {
+                    res.setHeader('Content-Type', mimeType + ';charset=UTF-8');
+                }
+                fs.createReadStream(path).pipe(res);
+            })
+            .catch(() => {
+                res.statusCode = 404;
+                res.end('Not found');
+            });
+
+    })
+    .listen(PORT);
+
+const wss = new ws.Server({ server });
 
 const rooms = {};
 

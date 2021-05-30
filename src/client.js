@@ -18,7 +18,7 @@ if (!roomId) {
 const roomIdField = document.getElementById('room');
 roomIdField.textContent = location;
 
-const s = new WebSocket(`ws://${location.hostname}:5003`);
+const s = new WebSocket(`ws://${location.host}`);
 addEventListener('beforeunload', () => s.close());
 
 s.onopen = () => {
