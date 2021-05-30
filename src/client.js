@@ -3,6 +3,23 @@ import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS } from './actions.js';
 import { DEFAULT_VARIANTS } from './variants.js';
 import { User } from './model.js';
 
+const getUserNameFromLocalStorage = () => {
+    try {
+        return localStorage.getItem('userName');
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const saveUserNameInLocalStorage = name => {
+    try {
+        localStorage.setItem('userName', name);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
 let answerVariants = DEFAULT_VARIANTS;
 
 /** @type {import('./writable.js').Writable<User[]>} */
@@ -26,7 +43,7 @@ s.onopen = () => {
         type: CONNECT,
         payload: roomId
     }));
-    const name = localStorage.getItem('userName');
+    const name = getUserNameFromLocalStorage();
     if (name) {
         s.send(JSON.stringify({
             type: NAME,
@@ -121,14 +138,14 @@ usersStore.subscribe(users => {
                 userNode.appendChild(input);
                 input.addEventListener('change', e => {
                     const name = input.value;
-                    localStorage.setItem('userName', name);
+                    saveUserNameInLocalStorage(name);
                     s.send(JSON.stringify({
                         type: NAME,
                         payload: name
                     }));
                     input.blur();
                 });
-                input.value = localStorage.getItem('userName') || user.name;
+                input.value = getUserNameFromLocalStorage() || user.name;
             }
         }
     }
