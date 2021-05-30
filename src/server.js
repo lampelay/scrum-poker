@@ -50,9 +50,9 @@ wss.on('connection', ws => {
         payload: user.id
     }));
 
-    let users;
-    let question;
-    let variants;
+    let usersStore;
+    let questionStore;
+    let variantsStore;
 
     let unsubUsers = () => { };
     let unsubQuestion = () => { };
@@ -66,70 +66,67 @@ wss.on('connection', ws => {
                 if (!rooms[roomId]) {
                     rooms[roomId] = new Room();
                 }
-                users = rooms[roomId].users;
-                question = rooms[roomId].question;
-                variants = rooms[roomId].variants;
-                unsubUsers = users.subscribe(usrs => {
+                usersStore = rooms[roomId].users;
+                questionStore = rooms[roomId].question;
+                variantsStore = rooms[roomId].variants;
+                usersStore.set(users => [...users, user]);
+                unsubUsers = usersStore.subscribe(users => {
                     ws.send(JSON.stringify({
                         type: USERS,
-                        payload: usrs
+                        payload: users
                     }));
                 });
-                unsubQuestion = question.subscribe(q => {
+                unsubQuestion = questionStore.subscribe(q => {
                     ws.send(JSON.stringify({
                         type: QUESTION,
                         payload: q
                     }));
                 });
-                unsubVariants = variants.subscribe(v => {
+                unsubVariants = variantsStore.subscribe(v => {
                     ws.send(JSON.stringify({
                         type: VARIANTS,
                         payload: v
                     }));
                 });
-                users.set(usrs => {
-                    usrs.push(user);
-                    return [...usrs];
-                });
                 break;
             case NAME:
-                users.set(usrs => {
+                usersStore.set(users => {
                     user.name = action.payload;
-                    return [...usrs];
+                    return [...users];
                 });
                 break;
             case QUESTION:
-                question.set(action.payload);
-                users.set(usrs => {
-                    usrs.forEach(u => u.answer = '');
-                    return [...usrs];
+                questionStore.set(action.payload);
+                usersStore.set(users => {
+                    users.forEach(u => u.answer = '');
+                    return [...users];
                 })
                 break;
             case ANSWER:
-                users.set(usrs => {
+                usersStore.set(users => {
                     user.answer = action.payload;
-                    return [...usrs];
+                    return [...users];
                 });
                 break;
             case VARIANTS:
-                variants.set(action.payload);
-                users.set(usrs => {
-                    usrs.forEach(u => {
+                variantsStore.set(action.payload);
+                usersStore.set(users => {
+                    users.forEach(u => {
                         if (!action.payload.includes(u.answer)) {
                             u.answer = '';
                         }
                     });
-                    return [...usrs];
+                    return [...users];
                 });
                 break;
             case KICK:
-                users.set(usrs => usrs.filter(u => u.id !== action.payload));
+                usersStore.set(users => users.filter(u => u.id !== action.payload));
                 break;
         }
     });
 
     ws.on('close', () => {
-        users && users.set(usrs => usrs.filter(u => u !== user));
+        usersStore && usersStore.set(users => users.filter(u => u !== user));
         unsubUsers();
         unsubQuestion();
         unsubVariants();

@@ -25,6 +25,7 @@ let answerVariants = DEFAULT_VARIANTS;
 
 /** @type {import('./writable.js').Writable<User[]>} */
 const usersStore = writable([]);
+
 const questionStore = writable('');
 let userId = '';
 
@@ -51,6 +52,11 @@ s.onopen = () => {
             payload: name
         }));
     }
+    usersStore.subscribe(users => {
+        if (users.length && users.every(u => u.id !== userId)) {
+            location.href = '/';
+        }
+    });
 }
 
 s.onmessage = e => {
@@ -131,7 +137,7 @@ usersStore.subscribe(users => {
                 kickButton = document.createElement('button');
                 kickButton.textContent = 'Выгнать';
                 kickButton.addEventListener('click', () => {
-                    askToKick(user.name)
+                    askToKick(nameNode.textContent)
                         .then(() => {
                             s.send(JSON.stringify({
                                 type: KICK,
@@ -221,11 +227,11 @@ usersStore.subscribe(users => {
             answersTitle.textContent = 'Результат';
             answers.innerHTML = users
                 .map(u => `
-                            <div class="card selected">
-                                <div>${u.answer}</div>
-                            </div>
-                        `)
+                    <div class="card selected">
+                        <div>${u.answer}</div>
+                    </div>
+                `)
                 .join('');
         }
     }
-})
+});

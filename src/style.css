@@ -1,6 +1,10 @@
+:root {
+    --font-size: 14pt;
+}
+
 html {
     font-family: sans-serif;
-    font-size: 12pt;
+    font-size: var(--font-size);
 }
 
 h1 {
@@ -14,7 +18,11 @@ main {
 
 input {
     width: 99%;
-    font-size: 12pt;
+    font-size: var(--font-size);
+}
+
+button {
+    font-size: var(--font-size);
 }
 
 fieldset {
@@ -65,6 +73,15 @@ button.card:hover {
 
 .card.selected {
     background-color: blue;
+}
+
+#usersList {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+#usersList li {
+    line-height: 1.8em;
 }
 
 .popup {
