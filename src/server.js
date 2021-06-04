@@ -104,7 +104,11 @@ wss.on('connection', ws => {
                 break;
             case ANSWER:
                 usersStore.set(users => {
-                    user.answer = action.payload;
+		    if (user.answer === action.payload) {
+		        user.answer = '';
+		    } else {
+                        user.answer = action.payload;
+		    }
                     return [...users];
                 });
                 break;

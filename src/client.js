@@ -208,10 +208,8 @@ usersStore.subscribe(users => {
             }
             if (user?.answer === answer) {
                 button.classList.add('selected');
-                button.disabled = true;
             } else {
                 button.classList.remove('selected');
-                button.disabled = false;
             }
         }
         buttonsToDelete.forEach(v => {
