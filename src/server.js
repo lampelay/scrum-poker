@@ -36,7 +36,7 @@ const server = http
             });
 
     })
-    .listen(PORT);
+    .listen(PORT, () => console.log(`http://localhost:${PORT}/`));
 
 const wss = new ws.Server({ server });
 
@@ -91,7 +91,9 @@ wss.on('connection', ws => {
                 break;
             case NAME:
                 usersStore.set(users => {
-                    user.name = action.payload;
+                    if (action.payload.trim()) {
+                        user.name = action.payload.trim();
+                    }
                     return [...users];
                 });
                 break;
@@ -104,11 +106,11 @@ wss.on('connection', ws => {
                 break;
             case ANSWER:
                 usersStore.set(users => {
-		    if (user.answer === action.payload) {
-		        user.answer = '';
-		    } else {
+                    if (user.answer === action.payload) {
+                        user.answer = '';
+                    } else {
                         user.answer = action.payload;
-		    }
+                    }
                     return [...users];
                 });
                 break;

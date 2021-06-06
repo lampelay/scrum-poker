@@ -16,8 +16,9 @@
                 |
                 <a href="/">Выйти</a>
             </legend>
-            <div>
+            <div class="room-container">
                 <span id="room"></span>
+                <button id="room-copy-button">Копировать ссылку</button>
             </div>
         </fieldset>
 
@@ -43,14 +44,12 @@
     </main>
     <div class="popup">
         <div class="popup__background"></div>
-        <div class="popup__window">
-            <p class="popup__question">
-                Выгнать участника с именем
-                <span class="popup__username"></span>?
-            </p>
-            <button class="popup__button-ok">Да</button>
-            <button class="popup__button-cancel">Отменить</button>
-        </div>
+        <form class="popup__window">
+            <p class="popup__question"></p>
+            <input class="popup__value">
+            <button type="submit" class="popup__button-ok">Да</button>
+            <button type="button" class="popup__button-cancel">Отменить</button>
+        </form>
     </div>
     <script type="module" src="client.js"></script>
 </body>
