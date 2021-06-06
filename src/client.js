@@ -45,10 +45,10 @@ const saveUserNameInLocalStorage = name => {
     const roomIdField = document.getElementById('room');
     roomIdField.textContent = location;
 
-    const roomCopyButton = document.getElementById('room-copy-button');
-    roomCopyButton.onclick = function () {
-        navigator.clipboard.writeText(roomIdField.textContent);
-    }
+    // const roomCopyButton = document.getElementById('room-copy-button');
+    // roomCopyButton.onclick = function () {
+    //     navigator.clipboard.writeText(roomIdField.textContent);
+    // }
 
     const s = new WebSocket(`ws://${location.host}`);
     addEventListener('beforeunload', () => s.close());
