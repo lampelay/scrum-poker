@@ -42,7 +42,7 @@
  * @returns {Writable<T>}
  */
 export const writable = value => {
-    /** @type {Set<Listener<T>} */
+    /** @type {Set<Listener<T>>} */
     const subscribers = new Set();
     let isUpdate = false;
 
@@ -62,7 +62,11 @@ export const writable = value => {
         if (isUpdate) return;
         isUpdate = true;
         if (typeof newValue === 'function') {
-            newValue = newValue(value);
+            try {
+                newValue = newValue(value);
+            } catch (e) {
+                console.error(e);
+            }
         }
         if (newValue !== value) {
             value = newValue;

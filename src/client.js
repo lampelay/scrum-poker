@@ -242,10 +242,10 @@ const saveUserNameInLocalStorage = name => {
                 answersTitle.textContent = 'Результат';
                 answers.innerHTML = users
                     .map(u => `
-                    <div class="card selected">
-                        <div>${u.answer}</div>
-                    </div>
-                `)
+                        <div class="card selected">
+                            <div>${u.answer}</div>
+                        </div>
+                    `)
                     .join('');
             }
         }

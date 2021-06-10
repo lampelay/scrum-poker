@@ -1,3 +1,4 @@
+/** @type {HTMLElement} */
 const popup = document.querySelector('.popup');
 /** @type {HTMLFormElement} */
 const form = document.querySelector('.popup__window');
@@ -12,7 +13,8 @@ const valueNode = popup.querySelector('.popup__value');
 
 /**
  * 
- * @param {string} question 
+ * @param {string} question
+ * @param {string} [defaultValue]
  * @returns {Promise<void>}
  */
 export const ask = async (question, defaultValue) => {
@@ -27,18 +29,18 @@ export const ask = async (question, defaultValue) => {
         valueNode.style.display = 'none';
         ok.focus();
     }
-    return new Promise((res, rej) => {
+    return new Promise((resolve, reject) => {
         form.onsubmit = function handleOk(e) {
             e.preventDefault();
             form.onsubmit = undefined;
             popup.style.display = 'none';
-            res(valueNode.value);
+            resolve(valueNode.value);
         };
         function handleCancel() {
             cancel.onclick = undefined;
             background.onclick = undefined;
             popup.style.display = 'none';
-            rej(defaultValue);
+            reject(defaultValue);
         }
         cancel.onclick = handleCancel;
         background.onclick = handleCancel;
