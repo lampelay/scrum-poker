@@ -38,7 +38,15 @@ const server = http
     })
     .listen(PORT, () => console.log(`http://localhost:${PORT}/`));
 
-const wss = new ws.Server({ server });
+const wss = new ws.Server({ noServer: true });
+
+server.on('upgrade', (request, socket, head) => {
+    if (request.url === '/socket') {
+        wss.handleUpgrade(request, socket, head, ws => {
+            wss.emit('connection', ws, request);
+        });
+    }
+});
 
 const rooms = {};
 

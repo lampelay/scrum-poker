@@ -50,7 +50,7 @@ const saveUserNameInLocalStorage = name => {
     //     navigator.clipboard.writeText(roomIdField.textContent);
     // }
 
-    const s = new WebSocket(`ws://${location.host}`);
+    const s = new WebSocket(`ws://${location.host}/socket`);
     addEventListener('beforeunload', () => s.close());
 
     s.onopen = () => {
