@@ -39,7 +39,7 @@ const saveUserNameInLocalStorage = name => {
 
     const roomId = new URLSearchParams(location.search).get('id');
     if (!roomId) {
-        location.href = '/';
+        location.href = location.href.split('/').slice(0, -1).filter((p, i) => i < 2 || !!p).join('/');
     }
 
     const roomIdField = document.getElementById('room');
