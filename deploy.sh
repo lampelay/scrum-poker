@@ -2,16 +2,17 @@ rm archive.zip
 zip archive.zip -r \
     node_modules \
     src \
-    package.json 
+    package.json \
+    start.sh \
+    stop.sh
     
 scp archive.zip rikolamp@185.155.19.84:/var/www/data/
 rm archive.zip
 ssh rikolamp@185.155.19.84 '
     cd /var/www/data/scrum-poker
-    kill $(cat process)
+    ./stop.sh
     rm -rf *
     unzip ../archive.zip -d .
-    PORT=5002 /home/rikolamp/.nvm/versions/node/v14.16.1/bin/node src/server.js &
-    echo $! > process
+    ./start.sh
     rm -f ../archive.zip
 '
