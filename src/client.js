@@ -171,7 +171,7 @@ const saveUserNameInLocalStorage = name => {
                 if (!input) {
                     input = document.createElement('input');
                     userNode.appendChild(input);
-                    input.addEventListener('change', e => {
+                    input.onchange = e => {
                         const name = input.value.trim();
                         if (name) {
                             saveUserNameInLocalStorage(name);
@@ -181,7 +181,7 @@ const saveUserNameInLocalStorage = name => {
                             payload: name
                         }));
                         input.blur();
-                    });
+                    }
                 }
                 if (document.activeElement !== input) {
                     input.value = user.name;
@@ -215,12 +215,12 @@ const saveUserNameInLocalStorage = name => {
                     const div = document.createElement('div');
                     div.innerHTML = answer;
                     button.append(div);
-                    button.addEventListener('click', e => {
+                    button.onclick = e => {
                         s.send(JSON.stringify({
                             type: ANSWER,
                             payload: answer
                         }));
-                    });
+                    }
                     answers.append(button);
                 }
                 if (user?.answer === answer) {
