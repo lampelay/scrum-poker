@@ -33,10 +33,13 @@ export const ask = async (question, defaultValue) => {
         form.onsubmit = function handleOk(e) {
             e.preventDefault();
             form.onsubmit = undefined;
+            background.onclick = undefined;
+            cancel.onclick = undefined;
             popup.style.display = 'none';
             resolve(valueNode.value);
         };
         function handleCancel() {
+            form.onsubmit = undefined;
             cancel.onclick = undefined;
             background.onclick = undefined;
             popup.style.display = 'none';
