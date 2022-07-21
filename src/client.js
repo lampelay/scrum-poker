@@ -3,6 +3,7 @@ import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './action
 import { DEFAULT_VARIANTS } from './variants.js';
 import { User } from './model.js';
 import { ask } from './ask.js';
+import config from '../config.js'
 
 const getUserNameFromLocalStorage = () => {
     try {
@@ -50,7 +51,7 @@ const saveUserNameInLocalStorage = name => {
     //     navigator.clipboard.writeText(roomIdField.textContent);
     // }
 
-    const s = new WebSocket(`ws://${location.host}/socket`);
+    const s = new WebSocket(`ws://${location.host}${config.reverseProxyUrl}/socket`);
     addEventListener('beforeunload', () => s.close());
 
     s.onopen = () => {
