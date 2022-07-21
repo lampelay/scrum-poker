@@ -99,10 +99,7 @@ const saveUserNameInLocalStorage = name => {
             .value
             .split(';')
             .map(v => v.trim())
-            .sort()
-            .sort((a, b) => (+a - +b) || -1)
             .filter(Boolean);
-        console.log(answerVariants)
         if (answerVariants.length === 0) {
             answerVariants = DEFAULT_VARIANTS;
         }
