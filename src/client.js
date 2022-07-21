@@ -251,6 +251,7 @@ const saveUserNameInLocalStorage = name => {
                     .map(u => `
                         <div class="card selected">
                             <div>${u.answer}</div>
+                            <div class="name">${u.name}</div>
                         </div>
                     `)
                     .join('');

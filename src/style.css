@@ -75,6 +75,11 @@ button.card:hover {
     background-color: blue;
 }
 
+.card.selected .name {
+    margin-top: -100px;
+    font-size: 10px;
+}
+
 #usersList {
     margin: 0;
     padding-left: 1.2em;
