@@ -3,7 +3,7 @@ import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './action
 import { DEFAULT_VARIANTS } from './variants.js';
 import { User } from './model.js';
 import { ask } from './ask.js';
-import config from '../config.js'
+import config from './config.js'
 
 const getUserNameFromLocalStorage = () => {
     try {

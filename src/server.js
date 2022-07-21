@@ -4,7 +4,7 @@ import ws from 'ws';
 import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './actions.js';
 import { User, Room } from './model.js';
-import config from '../config.js'
+import config from './config.js'
 
 if (!Array.prototype.last){
     Array.prototype.last = function(){
