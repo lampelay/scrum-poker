@@ -99,7 +99,10 @@ const saveUserNameInLocalStorage = name => {
             .value
             .split(';')
             .map(v => v.trim())
+            .sort()
+            .sort((a, b) => (+a - +b) || -1)
             .filter(Boolean);
+        console.log(answerVariants)
         if (answerVariants.length === 0) {
             answerVariants = DEFAULT_VARIANTS;
         }
@@ -195,8 +198,10 @@ const saveUserNameInLocalStorage = name => {
     });
 
     const answers = document.getElementById('answers');
+    //
     const answersTitle = document.getElementById('answers-title');
     const buttonNodes = {};
+
     usersStore.subscribe(users => {
         const user = users.find(u => u.id === userId);
         if (users.some(u => !u.answer)) {
@@ -205,24 +210,23 @@ const saveUserNameInLocalStorage = name => {
                 answers.innerHTML = '';
             }
             const buttonsToDelete = new Set(Object.keys(buttonNodes));
+            answers.innerHTML = '';
             for (const answer of answerVariants) {
                 buttonsToDelete.delete(answer);
                 let button = buttonNodes[answer];
-                if (!button) {
-                    button = document.createElement('button');
-                    buttonNodes[answer] = button;
-                    button.className = 'card';
-                    const div = document.createElement('div');
-                    div.innerHTML = answer;
-                    button.append(div);
-                    button.onclick = e => {
-                        s.send(JSON.stringify({
-                            type: ANSWER,
-                            payload: answer
-                        }));
-                    }
-                    answers.append(button);
+                button = document.createElement('button');
+                buttonNodes[answer] = button;
+                button.className = 'card';
+                const div = document.createElement('div');
+                div.innerHTML = answer;
+                button.append(div);
+                button.onclick = e => {
+                    s.send(JSON.stringify({
+                        type: ANSWER,
+                        payload: answer
+                    }));
                 }
+                answers.append(button);
                 if (user?.answer === answer) {
                     button.classList.add('selected');
                 } else {
