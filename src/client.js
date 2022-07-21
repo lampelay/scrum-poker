@@ -130,6 +130,7 @@ const saveUserNameInLocalStorage = name => {
     usersStore.subscribe(users => {
         const nodesToDelete = new Set(Object.keys(userNodes));
         for (const user of users) {
+
             nodesToDelete.delete(user.id);
             let userNode = userNodes[user.id];
             if (!userNode) {
@@ -138,16 +139,19 @@ const saveUserNameInLocalStorage = name => {
                 usersList.appendChild(userNode);
             }
             if (user.id !== userId) {
-                let nameNode = userNode.querySelector('span');
+                let nameNode = userNode.querySelector('span.name');
                 if (!nameNode) {
                     nameNode = document.createElement('span');
+                    nameNode.className = 'name';
                     userNode.append(nameNode);
                 }
-                let answerNode = userNode.querySelector('i');
+                let answerNode = userNode.querySelector('span.ready');
                 if (!answerNode) {
-                    answerNode = document.createElement('i');
+                    answerNode = document.createElement('span');
+                    answerNode.className = 'ready';
                     userNode.append(' ', answerNode);
                 }
+
                 let kickButton = userNode.querySelector('button');
                 if (!kickButton) {
                     kickButton = document.createElement('button');
@@ -163,12 +167,11 @@ const saveUserNameInLocalStorage = name => {
                     });
                     userNode.append(' ', kickButton);
                 }
+
                 if (nameNode.textContent !== user.name) {
                     nameNode.textContent = user.name;
                 }
-                if (!!answerNode.textContent !== !!user.answer) {
-                    answerNode.textContent = user.answer ? 'Есть ответ' : '';
-                }
+                answerNode.textContent = user.answer ? '✅' : "❌";
             } else {
                 let input = userNode.querySelector('input');
                 if (!input) {
