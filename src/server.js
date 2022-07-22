@@ -45,8 +45,6 @@ const server = http
 const wss = new ws.Server({ noServer: true });
 
 server.on('upgrade', (request, socket, head) => {
-    console.log(request.url);
-    console.log(request.host);
     if (request.url.split("/").last() === 'socket') {
         wss.handleUpgrade(request, socket, head, ws => {
             wss.emit('connection', ws, request);
