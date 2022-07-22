@@ -4,15 +4,19 @@ import ws from 'ws';
 import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './actions.js';
 import { User, Room } from './model.js';
+import config from './config.js'
 
-const PORT = process.env.PORT || 3000;
+if (!Array.prototype.last){
+    Array.prototype.last = function(){
+        return this[this.length - 1];
+    };
+}
 
 const server = http
     .createServer(async (req, res) => {
-        let path = './src' + req.url.split('?')[0];
-        if (path.endsWith('/')) {
-            path += 'index.html';
-        }
+        const viewName = req.url.split('?')[0].split('/').last() || 'index';
+        let path = `./src/${viewName}`;
+
         const stat = await fs.promises.stat(path).catch(() => null);
         if (!stat) {
             path += '.html';
@@ -36,12 +40,14 @@ const server = http
             });
 
     })
-    .listen(PORT, () => console.log(`http://localhost:${PORT}/`));
+    .listen(config.port, () => console.log(`http://localhost${config.reverseProxyUrl}:${config.port}/`));
 
 const wss = new ws.Server({ noServer: true });
 
 server.on('upgrade', (request, socket, head) => {
-    if (request.url === '/socket') {
+    console.log(request.url);
+    console.log(request.host);
+    if (request.url.split("/").last() === 'socket') {
         wss.handleUpgrade(request, socket, head, ws => {
             wss.emit('connection', ws, request);
         });

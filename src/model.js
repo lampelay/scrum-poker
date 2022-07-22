@@ -13,6 +13,6 @@ export class Room {
     constructor() {
         this.users = writable([]);
         this.question = writable('');
-        this.variants = writable(DEFAULT_VARIANTS);
+        this.variants = writable(DEFAULT_VARIANTS)
     }
 }

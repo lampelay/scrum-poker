@@ -3,6 +3,7 @@ import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './action
 import { DEFAULT_VARIANTS } from './variants.js';
 import { User } from './model.js';
 import { ask } from './ask.js';
+import config from './config.js'
 
 const getUserNameFromLocalStorage = () => {
     try {
@@ -50,7 +51,7 @@ const saveUserNameInLocalStorage = name => {
     //     navigator.clipboard.writeText(roomIdField.textContent);
     // }
 
-    const s = new WebSocket(`ws://${location.host}/socket`);
+    const s = new WebSocket(`ws://${location.host}${config.reverseProxyUrl}/socket`);
     addEventListener('beforeunload', () => s.close());
 
     s.onopen = () => {
@@ -127,6 +128,7 @@ const saveUserNameInLocalStorage = name => {
     usersStore.subscribe(users => {
         const nodesToDelete = new Set(Object.keys(userNodes));
         for (const user of users) {
+
             nodesToDelete.delete(user.id);
             let userNode = userNodes[user.id];
             if (!userNode) {
@@ -135,16 +137,19 @@ const saveUserNameInLocalStorage = name => {
                 usersList.appendChild(userNode);
             }
             if (user.id !== userId) {
-                let nameNode = userNode.querySelector('span');
+                let nameNode = userNode.querySelector('span.name');
                 if (!nameNode) {
                     nameNode = document.createElement('span');
+                    nameNode.className = 'name';
                     userNode.append(nameNode);
                 }
-                let answerNode = userNode.querySelector('i');
+                let answerNode = userNode.querySelector('span.ready');
                 if (!answerNode) {
-                    answerNode = document.createElement('i');
+                    answerNode = document.createElement('span');
+                    answerNode.className = 'ready';
                     userNode.append(' ', answerNode);
                 }
+
                 let kickButton = userNode.querySelector('button');
                 if (!kickButton) {
                     kickButton = document.createElement('button');
@@ -160,12 +165,11 @@ const saveUserNameInLocalStorage = name => {
                     });
                     userNode.append(' ', kickButton);
                 }
+
                 if (nameNode.textContent !== user.name) {
                     nameNode.textContent = user.name;
                 }
-                if (!!answerNode.textContent !== !!user.answer) {
-                    answerNode.textContent = user.answer ? 'Есть ответ' : '';
-                }
+                answerNode.textContent = user.answer ? '✅' : "❌";
             } else {
                 let input = userNode.querySelector('input');
                 if (!input) {
@@ -195,8 +199,10 @@ const saveUserNameInLocalStorage = name => {
     });
 
     const answers = document.getElementById('answers');
+    //
     const answersTitle = document.getElementById('answers-title');
     const buttonNodes = {};
+
     usersStore.subscribe(users => {
         const user = users.find(u => u.id === userId);
         if (users.some(u => !u.answer)) {
@@ -205,24 +211,23 @@ const saveUserNameInLocalStorage = name => {
                 answers.innerHTML = '';
             }
             const buttonsToDelete = new Set(Object.keys(buttonNodes));
+            answers.innerHTML = '';
             for (const answer of answerVariants) {
                 buttonsToDelete.delete(answer);
                 let button = buttonNodes[answer];
-                if (!button) {
-                    button = document.createElement('button');
-                    buttonNodes[answer] = button;
-                    button.className = 'card';
-                    const div = document.createElement('div');
-                    div.innerHTML = answer;
-                    button.append(div);
-                    button.onclick = e => {
-                        s.send(JSON.stringify({
-                            type: ANSWER,
-                            payload: answer
-                        }));
-                    }
-                    answers.append(button);
+                button = document.createElement('button');
+                buttonNodes[answer] = button;
+                button.className = 'card';
+                const div = document.createElement('div');
+                div.innerHTML = answer;
+                button.append(div);
+                button.onclick = e => {
+                    s.send(JSON.stringify({
+                        type: ANSWER,
+                        payload: answer
+                    }));
                 }
+                answers.append(button);
                 if (user?.answer === answer) {
                     button.classList.add('selected');
                 } else {
@@ -244,6 +249,7 @@ const saveUserNameInLocalStorage = name => {
                     .map(u => `
                         <div class="card selected">
                             <div>${u.answer}</div>
+                            <div class="name">${u.name}</div>
                         </div>
                     `)
                     .join('');
