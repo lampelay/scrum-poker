@@ -2,7 +2,7 @@ import { writable } from './writable.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './actions.js';
 import { DEFAULT_VARIANTS } from './variants.js';
 import { User } from './model.js';
-import { ask } from './ask.js';
+import { ask, notify } from "./ask.js";
 import config from './config.js'
 
 const getUserNameFromLocalStorage = () => {
@@ -59,9 +59,10 @@ const saveUserNameInLocalStorage = name => {
             type: CONNECT,
             payload: roomId
         }));
-        usersStore.subscribe(users => {
+        usersStore.subscribe(async (users) => {
             if (users.length && users.every(u => u.id !== userId)) {
-                location.href = '/';
+                await notify("Вас выгнали");
+                location.href = `${config.reverseProxyUrl}/`;
             }
         });
         const name = getUserNameFromLocalStorage();

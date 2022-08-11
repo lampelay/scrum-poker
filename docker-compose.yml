@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  poker:
+    container_name: scrum-poker
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        APP_ENV: ${APP_ENV}
+    ports:
+      - "${PORT}:${PORT}"
+
+    env_file:
+      - .env
+    restart: on-failure
+    volumes:
+      - ./:/app

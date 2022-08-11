@@ -12,14 +12,16 @@ const questionNode = popup.querySelector('.popup__question');
 const valueNode = popup.querySelector('.popup__value');
 
 /**
- * 
+ *
  * @param {string} question
  * @param {string} [defaultValue]
+ * @param {string} okButtonText
  * @returns {Promise<void>}
  */
-export const ask = async (question, defaultValue) => {
+export const ask = async (question, defaultValue, okButtonText = 'Да') => {
     questionNode.textContent = question;
     popup.style.display = 'block';
+    ok.textContent = okButtonText;
     if (typeof defaultValue !== 'undefined') {
         valueNode.style.display = 'block';
         valueNode.value = defaultValue;
@@ -30,7 +32,7 @@ export const ask = async (question, defaultValue) => {
         ok.focus();
     }
     return new Promise((resolve, reject) => {
-        form.onsubmit = function handleOk(e) {
+        form.onsubmit = (e) => {
             e.preventDefault();
             form.onsubmit = undefined;
             background.onclick = undefined;
@@ -38,6 +40,7 @@ export const ask = async (question, defaultValue) => {
             popup.style.display = 'none';
             resolve(valueNode.value);
         };
+
         function handleCancel() {
             form.onsubmit = undefined;
             cancel.onclick = undefined;
@@ -45,7 +48,34 @@ export const ask = async (question, defaultValue) => {
             popup.style.display = 'none';
             reject(defaultValue);
         }
+
         cancel.onclick = handleCancel;
         background.onclick = handleCancel;
+    });
+};
+
+/**
+ *
+ * @param {string} message
+ * @returns {Promise<void>}
+ */
+export const notify = async (message) => {
+    questionNode.textContent = message;
+    popup.style.display = 'block';
+    valueNode.style.display = 'none';
+    cancel.style.display = 'none';
+    ok.textContent = 'Понятно';
+
+    return new Promise((resolve, reject) => {
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            form.onsubmit = undefined;
+            background.onclick = undefined;
+            cancel.onclick = undefined;
+            valueNode.style.display = 'block';
+            cancel.style.cancel = 'none';
+            popup.style.display = 'none';
+            resolve(valueNode.value);
+        };
     });
 };

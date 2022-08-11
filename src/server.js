@@ -1,6 +1,7 @@
 import http from 'http';
 import fs from 'fs';
 import ws from 'ws';
+import 'dotenv/config'
 import mimeTypes from './mime-types.js';
 import { USERS, QUESTION, ANSWER, NAME, CONNECT, VARIANTS, KICK } from './actions.js';
 import { User, Room } from './model.js';
@@ -40,13 +41,11 @@ const server = http
             });
 
     })
-    .listen(config.port, () => console.log(`http://localhost${config.reverseProxyUrl}:${config.port}/`));
+    .listen(process.env.PORT, () => console.log(`http://localhost${config.reverseProxyUrl}:${process.env.PORT}/`));
 
 const wss = new ws.Server({ noServer: true });
 
 server.on('upgrade', (request, socket, head) => {
-    console.log(request.url);
-    console.log(request.host);
     if (request.url.split("/").last() === 'socket') {
         wss.handleUpgrade(request, socket, head, ws => {
             wss.emit('connection', ws, request);
