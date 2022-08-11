@@ -60,11 +60,9 @@ const saveUserNameInLocalStorage = name => {
             payload: roomId
         }));
         usersStore.subscribe(async (users) => {
-            console.log("cuahgt");
             if (users.length && users.every(u => u.id !== userId)) {
-                console.log("Вас выгнали");
                 await notify("Вас выгнали");
-                location.href = `/${config.reverseProxyUrl}`;
+                location.href = `${config.reverseProxyUrl}/`;
             }
         });
         const name = getUserNameFromLocalStorage();
